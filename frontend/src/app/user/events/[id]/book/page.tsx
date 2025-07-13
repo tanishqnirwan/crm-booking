@@ -41,6 +41,7 @@ export default function BookEvent() {
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
@@ -94,12 +95,15 @@ export default function BookEvent() {
           order_id: payment_data.order_id,
           handler: async function (response: any) {
             console.log("Payment successful:", response);
+            setPaymentProcessing(true);
+            toast.success("Payment successful! Confirming your booking...");
             try {
               // Confirm booking after successful payment
               await confirmBooking(booking_reference, response.razorpay_payment_id);
             } catch (error) {
               console.error("Failed to confirm booking:", error);
               toast.error("Payment successful but booking confirmation failed. Please contact support.");
+              setPaymentProcessing(false);
             }
           },
           prefill: {
@@ -109,12 +113,13 @@ export default function BookEvent() {
           theme: {
             color: "#3B82F6"
           },
-          callback_url: `${window.location.origin}/user/payment/success?booking_reference=${booking_reference}&payment_id=${payment_data.order_id}`,
-          cancel_url: `${window.location.origin}/user/payment/cancel?error_code=PAYMENT_CANCELLED`,
+          callback_url: `${window.location.origin}/user/bookings/${booking_reference}/payment/success`,
+          cancel_url: `${window.location.origin}/user/bookings/${booking_reference}/payment/cancel`,
           modal: {
             ondismiss: function() {
               console.log("Payment cancelled");
               toast.info("Payment was cancelled");
+              setBookingLoading(false);
             }
           },
           // Enable all payment methods for INR
@@ -184,11 +189,13 @@ export default function BookEvent() {
         script.onerror = (error) => {
           console.error("Failed to load Razorpay script:", error);
           toast.error("Failed to load payment gateway");
+          setBookingLoading(false);
         };
         document.body.appendChild(script);
       } else {
         console.log("No payment data received");
         toast.error("Payment gateway initialization failed. Please try again.");
+        setBookingLoading(false);
       }
     } catch (error: any) {
       if (error.response?.data?.error) {
@@ -197,13 +204,14 @@ export default function BookEvent() {
         toast.error("Failed to initialize payment");
       }
       console.error("Payment initialization error:", error);
-    } finally {
       setBookingLoading(false);
     }
   };
 
   const confirmBooking = async (bookingReference: string, paymentId: string) => {
     try {
+      toast.loading("Confirming your booking...");
+      
       const response = await api.post(`/user/events/${eventId}/confirm-booking`, {
         booking_reference: bookingReference,
         payment_id: paymentId,
@@ -214,16 +222,25 @@ export default function BookEvent() {
 
       console.log("Booking confirmation response:", response.data);
       
+      toast.dismiss();
       toast.success("Booking confirmed successfully!");
-      router.push("/user");
+      
+      // Redirect to success page with booking ID
+      if (response.data.booking_id) {
+        router.push(`/user/bookings/${response.data.booking_id}/payment/success`);
+      } else {
+        router.push("/user");
+      }
       
     } catch (error: any) {
       console.error("Booking confirmation error:", error);
+      toast.dismiss();
       if (error.response?.data?.error) {
         toast.error(error.response.data.error);
       } else {
         toast.error("Failed to confirm booking");
       }
+      setPaymentProcessing(false);
     }
   };
 
@@ -272,6 +289,33 @@ export default function BookEvent() {
   return (
     <RoleGuard allowedRoles={["user"]}>
       <div className="container mx-auto px-4 py-8">
+        {/* Payment Processing Overlay */}
+        {paymentProcessing && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md mx-4 text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+              <h3 className="text-lg font-semibold mb-2">Processing Payment</h3>
+              <p className="text-muted-foreground mb-4">
+                Please wait while we confirm your payment and booking...
+              </p>
+              <div className="space-y-2 text-sm text-muted-foreground">
+                <div className="flex items-center justify-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                  <span>Payment received</span>
+                </div>
+                <div className="flex items-center justify-center">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                  <span>Verifying with Razorpay</span>
+                </div>
+                <div className="flex items-center justify-center">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
+                  <span>Confirming booking...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center space-x-4 mb-8">
             <Button

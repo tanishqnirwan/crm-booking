@@ -1,23 +1,33 @@
 "use client";
-import { useRouter, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-store";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import RoleGuard from "@/components/RoleGuard";
-import { XCircle, ArrowRight, RefreshCw } from "lucide-react";
+import { XCircle, ArrowLeft, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function PaymentCancel() {
   const { user } = useAuth();
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const bookingId = params.id as string;
+  
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Show cancellation message
+    toast.error("Payment was cancelled");
+  }, []);
 
   const handleRetryPayment = () => {
-    // Navigate back to the booking page to retry payment
+    // Navigate back to the booking page
     router.push(`/user/events/${bookingId}/book`);
   };
 
-  const handleBackToDashboard = () => {
+  const handleGoToDashboard = () => {
     router.push("/user");
   };
 
@@ -37,23 +47,38 @@ export default function PaymentCancel() {
             <CardHeader>
               <CardTitle>What happened?</CardTitle>
               <CardDescription>
-                Your booking is still pending and needs payment to be confirmed.
+                Your payment was cancelled before completion. This could be due to:
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  • Your booking was created but payment was not completed
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  • No charges have been made to your Razorpay account
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  • You can retry the payment at any time
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  • Your booking will be held for 24 hours
-                </p>
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                <div>
+                  <p className="font-medium">Payment Cancelled</p>
+                  <p className="text-sm text-muted-foreground">
+                    You cancelled the payment process or closed the payment window.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                <div>
+                  <p className="font-medium">No Charges Made</p>
+                  <p className="text-sm text-muted-foreground">
+                    No money has been deducted from your account. Your booking is not confirmed.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3">
+                <AlertCircle className="h-5 w-5 text-blue-600 mt-0.5" />
+                <div>
+                  <p className="font-medium">Try Again</p>
+                  <p className="text-sm text-muted-foreground">
+                    You can retry the payment to complete your booking.
+                  </p>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -64,17 +89,15 @@ export default function PaymentCancel() {
               className="w-full"
               size="lg"
             >
-              <RefreshCw className="mr-2 h-4 w-4" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
               Retry Payment
             </Button>
             
             <Button 
               variant="outline"
-              onClick={handleBackToDashboard}
+              onClick={handleGoToDashboard}
               className="w-full"
-              size="lg"
             >
-              <ArrowRight className="mr-2 h-4 w-4" />
               Back to Dashboard
             </Button>
             

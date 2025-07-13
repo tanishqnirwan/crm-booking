@@ -14,11 +14,13 @@ export interface AuthUser {
 interface AuthState {
   user: AuthUser | null;
   access_token: string | null;
+  isRehydrated: boolean;
   login: (user: AuthUser, token: string) => void;
   logout: () => void;
   setUser: (user: AuthUser | null) => void;
   updateUser: (user: AuthUser) => void;
   setAccessToken: (token: string) => void;
+  setRehydrated: (rehydrated: boolean) => void;
 }
 
 export const useAuth = create<AuthState>()(
@@ -26,6 +28,7 @@ export const useAuth = create<AuthState>()(
     (set) => ({
       user: null,
       access_token: null,
+      isRehydrated: false,
       login: (user, token) => {
         // Also save to localStorage for API access
         if (typeof window !== 'undefined') {
@@ -53,10 +56,16 @@ export const useAuth = create<AuthState>()(
         }
         set({ access_token: token });
       },
+      setRehydrated: (isRehydrated) => set({ isRehydrated }),
     }),
     {
       name: 'auth-storage',
       partialize: (state) => ({ user: state.user, access_token: state.access_token }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setRehydrated(true);
+        }
+      },
     }
   )
 ); 

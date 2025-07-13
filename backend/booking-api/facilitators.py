@@ -381,6 +381,100 @@ def facilitator_transactions():
         'total_revenue': round(total_revenue, 2)
     })
 
+@bp.route('/facilitator/crm/stats', methods=['GET'])
+@jwt_required()
+def facilitator_crm_stats():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user or user.role != 'facilitator':
+        return jsonify({'error': 'Not authorized'}), 403
+    
+    try:
+        # Get all bookings for facilitator's events with explicit joins
+        bookings = db.session.query(Booking).join(
+            Event, Booking.event_id == Event.id
+        ).filter(
+            Event.user_id == user_id
+        ).all()
+        
+        # Get unique customers with explicit joins
+        unique_customers = db.session.query(Booking.user_id).join(
+            Event, Booking.event_id == Event.id
+        ).filter(
+            Event.user_id == user_id
+        ).distinct().count()
+        
+        # Calculate total revenue
+        total_revenue = 0
+        for booking in bookings:
+            if booking.payment_status == 'completed':
+                event = Event.query.get(booking.event_id)
+                if event:
+                    total_revenue += float(event.price)
+        
+        # Calculate average booking value
+        completed_bookings = [b for b in bookings if b.payment_status == 'completed']
+        avg_booking_value = total_revenue / len(completed_bookings) if completed_bookings else 0
+        
+        # Get total notifications from CRM service
+        try:
+            import requests
+            crm_response = requests.get('http://crm-service:5001/notifications', timeout=3)
+            total_notifications = len(crm_response.json()) if crm_response.ok else 0
+        except:
+            total_notifications = 0
+        
+        return jsonify({
+            'total_customers': unique_customers,
+            'total_notifications': total_notifications,
+            'total_revenue': round(total_revenue, 2),
+            'average_booking_value': round(avg_booking_value, 2)
+        })
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to get CRM stats', 'details': str(e)}), 400
+
+@bp.route('/facilitator/crm/customers', methods=['GET'])
+@jwt_required()
+def facilitator_crm_customers():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user or user.role != 'facilitator':
+        return jsonify({'error': 'Not authorized'}), 403
+    
+    try:
+        # Get all unique customers for facilitator's events with explicit joins
+        customer_bookings = db.session.query(
+            Booking.user_id,
+            User.name,
+            User.email,
+            db.func.count(Booking.id).label('total_bookings'),
+            db.func.sum(Event.price).label('total_spent'),
+            db.func.max(Booking.created_at).label('last_booking')
+        ).select_from(Booking).join(
+            Event, Booking.event_id == Event.id
+        ).join(
+            User, Booking.user_id == User.id
+        ).filter(
+            Event.user_id == user_id
+        ).group_by(Booking.user_id, User.name, User.email).all()
+        
+        customers = []
+        for customer in customer_bookings:
+            customers.append({
+                'id': customer.user_id,
+                'name': customer.name,
+                'email': customer.email,
+                'total_bookings': customer.total_bookings,
+                'total_spent': float(customer.total_spent) if customer.total_spent else 0,
+                'last_booking': customer.last_booking.isoformat() if customer.last_booking else None
+            })
+        
+        return jsonify(customers)
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to get customer data', 'details': str(e)}), 400
+
 def notify_crm(booking, action):
     """Notify CRM about booking status changes"""
     try:
@@ -393,6 +487,7 @@ def notify_crm(booking, action):
         
         payload = {
             'booking_id': booking.id,
+            'facilitator_id': facilitator.id if facilitator else None,
             'action': action,
             'user': {
                 'id': user.id if user else None,

@@ -76,6 +76,9 @@ export default function Navbar() {
                     <Link href="/facilitator/transactions" className="text-sm font-medium transition-colors hover:text-primary">
                       Transactions
                     </Link>
+                    <Link href="/facilitator/crm" className="text-sm font-medium transition-colors hover:text-primary">
+                      CRM
+                    </Link>
                   </>
                 )}
               </>
@@ -207,6 +210,9 @@ export default function Navbar() {
                       </Link>
                       <Link href="/facilitator/transactions" className="block text-sm font-medium transition-colors hover:text-primary">
                         Transactions
+                      </Link>
+                      <Link href="/facilitator/crm" className="block text-sm font-medium transition-colors hover:text-primary">
+                        CRM
                       </Link>
                     </>
                   )}

@@ -10,10 +10,13 @@ interface RoleGuardProps {
 }
 
 export default function RoleGuard({ children, allowedRoles, fallback }: RoleGuardProps) {
-  const { user } = useAuth();
+  const { user, isRehydrated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
+    // Wait for auth state to be rehydrated before making routing decisions
+    if (!isRehydrated) return;
+
     if (!user) {
       router.replace("/login");
       return;
@@ -30,7 +33,19 @@ export default function RoleGuard({ children, allowedRoles, fallback }: RoleGuar
         router.replace("/choose-role");
       }
     }
-  }, [user, router, allowedRoles]);
+  }, [user, router, allowedRoles, isRehydrated]);
+
+  // Show loading while auth state is being rehydrated
+  if (!isRehydrated) {
+    return fallback || (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return fallback || <div>Loading...</div>;

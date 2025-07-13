@@ -78,9 +78,10 @@ export default function Profile() {
 
       // Update local user data
       updateUser({
-        ...user,
+        ...(user as any),
         name: profileData.name,
-        phone: profileData.phone
+        phone: profileData.phone,
+        id: user?.id ?? 0, // Ensure id is always a number
       });
 
       toast.success("Profile updated successfully");

@@ -324,6 +324,7 @@ def notify_crm_booking_confirmed(booking):
         
         payload = {
             'booking_id': booking.id,
+            'facilitator_id': facilitator.id if facilitator else None,
             'action': 'payment_completed',
             'user': {
                 'id': user.id if user else None,

@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import RoleGuard from "@/components/RoleGuard";
-import { Calendar, Users, BookOpen, Settings, Plus, TrendingUp, Clock, DollarSign } from "lucide-react";
+import CRMNotifications from "@/components/CRMNotifications";
+import { Calendar, Users, BookOpen, Settings, Plus, TrendingUp, Clock, DollarSign, Bell } from "lucide-react";
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { toast } from "sonner";
@@ -214,32 +215,49 @@ export default function FacilitatorDashboard() {
                 >
                   View Transactions
                 </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => router.push("/facilitator/crm")}
+                  className="w-full"
+                  size="lg"
+                >
+                  <Bell className="mr-2 h-4 w-4" />
+                  CRM Dashboard
+                </Button>
               </div>
             </CardContent>
           </Card>
 
-          {/* Recent Bookings */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Bookings</CardTitle>
-              <CardDescription>
-                Latest bookings for your events
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {recentBookings.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No bookings yet</p>
-                  <p className="text-sm">Create events to start receiving bookings</p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {recentBookings.map((booking) => (
-                    <div key={booking.id} className="flex items-center justify-between p-3 border rounded-lg">
+          {/* CRM Notifications */}
+          <CRMNotifications />
+        </div>
+
+        {/* Recent Bookings */}
+        <Card className="mt-8">
+          <CardHeader>
+            <CardTitle>Recent Bookings</CardTitle>
+            <CardDescription>
+              Latest bookings for your events
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recentBookings.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No recent bookings</p>
+                <p className="text-sm">Bookings will appear here when users book your events</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {recentBookings.slice(0, 5).map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <p className="font-medium">{booking.event.title}</p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="font-medium">{booking.user.name}</span>
                           <Badge className={getStatusColor(booking.status)}>
                             {booking.status}
                           </Badge>
@@ -248,26 +266,26 @@ export default function FacilitatorDashboard() {
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
-                          {booking.user.name} • ${booking.event.price}
+                          {booking.event.title} • ₹{booking.event.price}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(booking.created_at).toLocaleDateString()}
                         </p>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => router.push(`/facilitator/bookings`)}
-                      >
-                        View
-                      </Button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/facilitator/bookings`)}
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </RoleGuard>
   );

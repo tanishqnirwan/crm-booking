@@ -15,7 +15,7 @@ import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Calendar, Users } from "luci
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isRehydrated } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,8 +23,10 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Redirect if already logged in
+  // Redirect if already logged in (only after rehydration)
   useEffect(() => {
+    if (!isRehydrated) return;
+    
     if (user) {
       if (user.role === "facilitator") {
         router.replace("/facilitator");
@@ -34,7 +36,19 @@ export default function RegisterPage() {
         router.replace("/choose-role");
       }
     }
-  }, [user, router]);
+  }, [user, router, isRehydrated]);
+
+  // Show loading while auth state is being rehydrated
+  if (!isRehydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

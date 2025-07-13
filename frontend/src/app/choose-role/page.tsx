@@ -12,13 +12,15 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Users, Calendar, CheckCircle } from "lucide-react";
 
 export default function ChooseRolePage() {
-  const { user, setUser, access_token, setAccessToken } = useAuth();
+  const { user, setUser, access_token, setAccessToken, isRehydrated } = useAuth();
   const router = useRouter();
   const params = useSearchParams();
   const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!isRehydrated) return;
+    
     if (!user || !access_token) {
       // Try to get from URL params (for first load after OAuth)
       const userStr = params.get("user");
@@ -32,7 +34,19 @@ export default function ChooseRolePage() {
         router.replace("/login");
       }
     }
-  }, [user, access_token, params, setUser, setAccessToken, router]);
+  }, [user, access_token, params, setUser, setAccessToken, router, isRehydrated]);
+
+  // Show loading while auth state is being rehydrated
+  if (!isRehydrated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-sm text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

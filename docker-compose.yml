@@ -27,8 +27,8 @@ services:
     build:
       context: ./backend/crm-service
     command: python app.py
-    environment:
-      - CRM_BEARER_TOKEN=super-crm-token
+    env_file:
+      - ./backend/crm-service/.env
     ports:
       - '5001:5001'
     depends_on:
