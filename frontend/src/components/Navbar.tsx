@@ -61,7 +61,7 @@ export default function Navbar() {
                 </Link>
                
                 {user.role === "user" && (
-                  <Link href="/bookings" className="text-sm font-medium transition-colors hover:text-primary">
+                  <Link href="/user/bookings" className="text-sm font-medium transition-colors hover:text-primary">
                     My Bookings
                   </Link>
                 )}
@@ -193,7 +193,7 @@ export default function Navbar() {
                   </Link>
                  
                   {user.role === "user" && (
-                    <Link href="/bookings" className="block text-sm font-medium transition-colors hover:text-primary">
+                    <Link href="/user/bookings" className="block text-sm font-medium transition-colors hover:text-primary">
                       My Bookings
                     </Link>
                   )}

@@ -28,7 +28,7 @@ export default function CreateEvent() {
     virtual_link: "",
     max_participants: 10,
     price: 0,
-    currency: "USD",
+    currency: "INR",
     is_active: true
   });
 
@@ -183,13 +183,9 @@ export default function CreateEvent() {
                           <SelectTrigger>
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="USD">USD ($)</SelectItem>
-                            <SelectItem value="EUR">EUR (€)</SelectItem>
-                            <SelectItem value="GBP">GBP (£)</SelectItem>
-                            <SelectItem value="CAD">CAD (C$)</SelectItem>
-                            <SelectItem value="AUD">AUD (A$)</SelectItem>
-                          </SelectContent>
+                                                  <SelectContent>
+                          <SelectItem value="INR">INR (₹)</SelectItem>
+                        </SelectContent>
                         </Select>
                       </div>
                     </div>
@@ -305,7 +301,7 @@ export default function CreateEvent() {
                           required
                         />
                         <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                          {formData.currency}
+                          ₹
                         </span>
                       </div>
                     </div>
@@ -337,7 +333,7 @@ export default function CreateEvent() {
                     <div className="flex justify-between">
                       <span className="text-sm text-muted-foreground">Price:</span>
                       <span className="text-sm font-medium">
-                        {formData.price} {formData.currency}
+                        ₹{formData.price}
                       </span>
                     </div>
                     <div className="flex justify-between">

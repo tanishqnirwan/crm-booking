@@ -114,7 +114,15 @@ def get_me():
     user = User.query.get(user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
-    return jsonify({'id': user.id, 'email': user.email, 'name': user.name, 'role': user.role})
+    return jsonify({
+        'id': user.id, 
+        'email': user.email, 
+        'name': user.name, 
+        'role': user.role,
+        'phone': user.phone,
+        'is_verified': user.is_verified,
+        'created_at': user.created_at.isoformat() if user.created_at else None
+    })
 
 @bp.route('/profile', methods=['PUT'])
 @jwt_required()
@@ -124,6 +132,21 @@ def update_profile():
     if not user:
         return jsonify({'error': 'User not found'}), 404
     data = request.get_json()
-    # Only allow updating certain fields (currently none, but keep endpoint for future)
+    
+    # Update allowed fields
+    if 'name' in data and data['name']:
+        user.name = data['name']
+    
+    if 'phone' in data:
+        user.phone = data['phone']
+    
     db.session.commit()
-    return jsonify({'id': user.id, 'email': user.email, 'name': user.name, 'role': user.role}), 200 
+    return jsonify({
+        'id': user.id, 
+        'email': user.email, 
+        'name': user.name, 
+        'role': user.role,
+        'phone': user.phone,
+        'is_verified': user.is_verified,
+        'created_at': user.created_at.isoformat() if user.created_at else None
+    }), 200 

@@ -34,6 +34,36 @@ def list_events():
         })
     return jsonify(result)
 
+@bp.route('/events/<int:event_id>', methods=['GET'])
+@jwt_required()
+def get_event(event_id):
+    event = Event.query.get(event_id)
+    if not event:
+        return jsonify({'error': 'Event not found'}), 404
+    
+    user = User.query.get(event.user_id)
+    result = {
+        'id': event.id,
+        'title': event.title,
+        'description': event.description,
+        'event_type': event.event_type,
+        'start_datetime': event.start_datetime.isoformat() if event.start_datetime else None,
+        'end_datetime': event.end_datetime.isoformat() if event.end_datetime else None,
+        'location': event.location,
+        'virtual_link': event.virtual_link,
+        'max_participants': event.max_participants,
+        'current_participants': event.current_participants,
+        'price': float(event.price),
+        'currency': event.currency,
+        'is_active': event.is_active,
+        'facilitator': {
+            'id': user.id if user else None,
+            'name': user.name if user else None,
+            'email': user.email if user else None
+        } if user else None
+    }
+    return jsonify(result)
+
 @bp.route('/events', methods=['POST'])
 @jwt_required()
 def create_event():
@@ -53,7 +83,7 @@ def create_event():
             virtual_link=data.get('virtual_link'),
             max_participants=data.get('max_participants', 1),
             price=data.get('price', 0.0),
-            currency=data.get('currency', 'USD'),
+            currency=data.get('currency', 'INR'),
             user_id=user.id
         )  # type: ignore
         db.session.add(event)

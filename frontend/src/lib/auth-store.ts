@@ -6,6 +6,9 @@ export interface AuthUser {
   email: string;
   name: string;
   role: string;
+  phone?: string;
+  is_verified?: boolean;
+  created_at?: string;
 }
 
 interface AuthState {
@@ -14,6 +17,7 @@ interface AuthState {
   login: (user: AuthUser, token: string) => void;
   logout: () => void;
   setUser: (user: AuthUser | null) => void;
+  updateUser: (user: AuthUser) => void;
   setAccessToken: (token: string) => void;
 }
 
@@ -41,6 +45,7 @@ export const useAuth = create<AuthState>()(
         set({ user: null, access_token: null });
       },
       setUser: (user) => set({ user }),
+      updateUser: (user) => set({ user }),
       setAccessToken: (token) => {
         // Also save to localStorage for API access
         if (typeof window !== 'undefined') {

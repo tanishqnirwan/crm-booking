@@ -10,6 +10,10 @@ from bookings import bp as bookings_bp
 from facilitators import bp as facilitators_bp
 import os
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 CORS(app)

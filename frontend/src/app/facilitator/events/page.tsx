@@ -200,7 +200,7 @@ export default function FacilitatorEvents() {
                     
                     <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                       <DollarSign className="h-4 w-4" />
-                      <span>${event.price} {event.currency}</span>
+                      <span>₹{event.price}</span>
                     </div>
 
                     {event.location && (
@@ -359,9 +359,7 @@ function EditEventForm({ event, onUpdate, onCancel }: EditEventFormProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="USD">USD</SelectItem>
-              <SelectItem value="EUR">EUR</SelectItem>
-              <SelectItem value="GBP">GBP</SelectItem>
+              <SelectItem value="INR">INR (₹)</SelectItem>
             </SelectContent>
           </Select>
         </div>

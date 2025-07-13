@@ -127,9 +127,9 @@ export default function FacilitatorTransactions() {
   };
 
   const formatCurrency = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: currency || 'USD'
+      currency: currency || 'INR'
     }).format(amount);
   };
 
@@ -167,7 +167,7 @@ export default function FacilitatorTransactions() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(stats.total_revenue, 'USD')}</div>
+                <div className="text-2xl font-bold">{formatCurrency(stats.total_revenue, 'INR')}</div>
                 <p className="text-xs text-muted-foreground">
                   Lifetime earnings
                 </p>
@@ -193,7 +193,7 @@ export default function FacilitatorTransactions() {
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(stats.average_transaction, 'USD')}</div>
+                <div className="text-2xl font-bold">{formatCurrency(stats.average_transaction, 'INR')}</div>
                 <p className="text-xs text-muted-foreground">
                   Per booking
                 </p>
@@ -206,7 +206,7 @@ export default function FacilitatorTransactions() {
                 <Calendar className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(stats.monthly_revenue, 'USD')}</div>
+                <div className="text-2xl font-bold">{formatCurrency(stats.monthly_revenue, 'INR')}</div>
                 <p className="text-xs text-muted-foreground">
                   Last 30 days
                 </p>
