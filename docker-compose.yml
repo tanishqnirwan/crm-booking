@@ -23,5 +23,27 @@ services:
       - db
     volumes:
       - ./backend/booking-api:/app
+  crm-service:
+    build:
+      context: ./backend/crm-service
+    command: python app.py
+    environment:
+      - CRM_BEARER_TOKEN=super-crm-token
+    ports:
+      - '5001:5001'
+    depends_on:
+      - booking-api
+    volumes:
+      - ./backend/crm-service:/app
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - '3000:3000'
+    depends_on:
+      - booking-api
+      - crm-service
+    volumes:
+      - ./frontend:/app
 volumes:
   pgdata: 
