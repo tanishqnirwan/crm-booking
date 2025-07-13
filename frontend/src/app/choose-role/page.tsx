@@ -40,7 +40,16 @@ export default function ChooseRolePage() {
       );
       setUser({ ...user!, ...res.data });
       toast.success("Profile updated!");
-      router.replace("/events");
+      
+      // Use setTimeout to ensure auth state is updated before redirect
+      setTimeout(() => {
+        // Redirect to appropriate dashboard based on role
+        if (role === "facilitator") {
+          router.replace("/facilitator");
+        } else {
+          router.replace("/user");
+        }
+      }, 100);
     } catch (err: any) {
       toast.error(err?.response?.data?.error || "Failed to update profile");
     } finally {

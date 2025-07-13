@@ -28,6 +28,10 @@ export const useAuth = create<AuthState>()(
           localStorage.setItem('access_token', token);
         }
         set({ user, access_token: token });
+        // Force a re-render by triggering a state update
+        setTimeout(() => {
+          set({ user, access_token: token });
+        }, 0);
       },
       logout: () => {
         // Also remove from localStorage

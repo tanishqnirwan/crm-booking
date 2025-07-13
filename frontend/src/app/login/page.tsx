@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-store";
 import api from "@/lib/api";
@@ -9,20 +9,47 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      if (user.role === "facilitator") {
+        router.replace("/facilitator");
+      } else if (user.role === "user") {
+        router.replace("/user");
+      } else {
+        router.replace("/choose-role");
+      }
+    }
+  }, [user, router]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await api.post("/login", { email, password });
+      console.log("Login response:", res.data);
       login(res.data.user, res.data.access_token);
       toast.success("Logged in successfully!");
-      router.push("/events");
+      
+      // Use setTimeout to ensure auth state is updated before redirect
+      setTimeout(() => {
+        console.log("Redirecting user with role:", res.data.user.role);
+        // Redirect to appropriate dashboard based on role
+        if (res.data.user.role === "facilitator") {
+          router.replace("/facilitator");
+        } else if (res.data.user.role === "user") {
+          router.replace("/user");
+        } else {
+          // No role set, redirect to choose-role
+          router.replace("/choose-role");
+        }
+      }, 100);
     } catch (err: any) {
       toast.error(err?.response?.data?.error || "Login failed");
     } finally {

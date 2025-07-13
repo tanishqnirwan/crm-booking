@@ -35,15 +35,15 @@ services:
       - booking-api
     volumes:
       - ./backend/crm-service:/app
-  frontend:
-    build:
-      context: ./frontend
-    ports:
-      - '3000:3000'
-    depends_on:
-      - booking-api
-      - crm-service
-    volumes:
-      - ./frontend:/app
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   ports:
+  #     - '3000:3000'
+  #   depends_on:
+  #     - booking-api
+  #     - crm-service
+  #   volumes:
+  #     - ./frontend:/app
 volumes:
   pgdata: 

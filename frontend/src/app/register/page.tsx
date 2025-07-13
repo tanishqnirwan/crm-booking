@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/auth-store";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,11 +10,25 @@ import Link from "next/link";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user) {
+      if (user.role === "facilitator") {
+        router.replace("/facilitator");
+      } else if (user.role === "user") {
+        router.replace("/user");
+      } else {
+        router.replace("/choose-role");
+      }
+    }
+  }, [user, router]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

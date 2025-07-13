@@ -17,7 +17,19 @@ export default function OAuthCallbackPage() {
         const user = JSON.parse(userStr);
         login(user, access_token);
         toast.success("Logged in with Google!");
-        router.replace("/events");
+        
+        // Use setTimeout to ensure auth state is updated before redirect
+        setTimeout(() => {
+          // Redirect to appropriate dashboard based on role
+          if (user.role === "facilitator") {
+            router.replace("/facilitator");
+          } else if (user.role === "user") {
+            router.replace("/user");
+          } else {
+            // No role set, redirect to choose-role
+            router.replace("/choose-role");
+          }
+        }, 100);
       } catch {
         toast.error("Failed to parse user info from Google");
         router.replace("/login");
