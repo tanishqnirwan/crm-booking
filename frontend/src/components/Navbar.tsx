@@ -59,25 +59,29 @@ export default function Navbar() {
                 >
                   Dashboard
                 </Link>
-                <Link href="/events" className="text-sm font-medium transition-colors hover:text-primary">
-                  Events
-                </Link>
+               
                 {user.role === "user" && (
                   <Link href="/bookings" className="text-sm font-medium transition-colors hover:text-primary">
                     My Bookings
                   </Link>
                 )}
                 {user.role === "facilitator" && (
-                  <Link href="/facilitator/events" className="text-sm font-medium transition-colors hover:text-primary">
-                    My Events
-                  </Link>
+                  <>
+                    <Link href="/facilitator/events" className="text-sm font-medium transition-colors hover:text-primary">
+                      My Events
+                    </Link>
+                    <Link href="/facilitator/bookings" className="text-sm font-medium transition-colors hover:text-primary">
+                      Bookings
+                    </Link>
+                    <Link href="/facilitator/transactions" className="text-sm font-medium transition-colors hover:text-primary">
+                      Transactions
+                    </Link>
+                  </>
                 )}
               </>
             ) : (
               <>
-                <Link href="/events" className="text-sm font-medium transition-colors hover:text-primary">
-                  Events
-                </Link>
+             
                 <Link href="/about" className="text-sm font-medium transition-colors hover:text-primary">
                   About
                 </Link>
@@ -187,18 +191,24 @@ export default function Navbar() {
                   >
                     Dashboard
                   </Link>
-                  <Link href="/events" className="block text-sm font-medium transition-colors hover:text-primary">
-                    Events
-                  </Link>
+                 
                   {user.role === "user" && (
                     <Link href="/bookings" className="block text-sm font-medium transition-colors hover:text-primary">
                       My Bookings
                     </Link>
                   )}
                   {user.role === "facilitator" && (
-                    <Link href="/facilitator/events" className="block text-sm font-medium transition-colors hover:text-primary">
-                      My Events
-                    </Link>
+                    <>
+                      <Link href="/facilitator/events" className="block text-sm font-medium transition-colors hover:text-primary">
+                        My Events
+                      </Link>
+                      <Link href="/facilitator/bookings" className="block text-sm font-medium transition-colors hover:text-primary">
+                        Bookings
+                      </Link>
+                      <Link href="/facilitator/transactions" className="block text-sm font-medium transition-colors hover:text-primary">
+                        Transactions
+                      </Link>
+                    </>
                   )}
                 </div>
                 
