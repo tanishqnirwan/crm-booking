@@ -1,13 +1,10 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import Event, Facilitator, Booking, User
+from models import Event, Booking, User
 from extensions import db
 from datetime import datetime
 
 bp = Blueprint('facilitators', __name__)
-
-def get_facilitator(user_id):
-    return Facilitator.query.filter_by(user_id=user_id).first()
 
 def is_facilitator(user):
     return user and user.role == 'facilitator'
@@ -16,10 +13,10 @@ def is_facilitator(user):
 @jwt_required()
 def facilitator_events():
     user_id = get_jwt_identity()
-    facilitator = get_facilitator(user_id)
-    if not facilitator:
-        return jsonify({'error': 'Facilitator profile not found'}), 404
-    events = Event.query.filter_by(facilitator_id=facilitator.id).all()
+    user = User.query.get(user_id)
+    if not user or user.role != 'facilitator':
+        return jsonify({'error': 'Not authorized'}), 403
+    events = Event.query.filter_by(user_id=user_id).all()
     result = []
     for event in events:
         result.append({
@@ -43,21 +40,21 @@ def facilitator_events():
 @jwt_required()
 def event_bookings(event_id):
     user_id = get_jwt_identity()
-    facilitator = get_facilitator(user_id)
+    user = User.query.get(user_id)
     event = Event.query.get(event_id)
-    if not facilitator or not event or event.facilitator_id != facilitator.id:
+    if not user or user.role != 'facilitator' or not event or event.user_id != user_id:
         return jsonify({'error': 'Not authorized or event not found'}), 403
     bookings = Booking.query.filter_by(event_id=event_id).all()
     result = []
     for booking in bookings:
-        user = User.query.get(booking.user_id)
+        booking_user = User.query.get(booking.user_id)
         result.append({
             'booking_id': booking.id,
             'user': {
-                'id': user.id if user else None,
-                'name': user.name if user else None,
-                'email': user.email if user else None
-            } if user else None,
+                'id': booking_user.id if booking_user else None,
+                'name': booking_user.name if booking_user else None,
+                'email': booking_user.email if booking_user else None
+            } if booking_user else None,
             'status': booking.status,
             'created_at': booking.created_at.isoformat() if booking.created_at else None
         })
@@ -67,9 +64,9 @@ def event_bookings(event_id):
 @jwt_required()
 def update_event(event_id):
     user_id = get_jwt_identity()
-    facilitator = get_facilitator(user_id)
+    user = User.query.get(user_id)
     event = Event.query.get(event_id)
-    if not facilitator or not event or event.facilitator_id != facilitator.id:
+    if not user or user.role != 'facilitator' or not event or event.user_id != user_id:
         return jsonify({'error': 'Not authorized or event not found'}), 403
     data = request.get_json()
     try:
@@ -89,9 +86,9 @@ def update_event(event_id):
 @jwt_required()
 def cancel_event(event_id):
     user_id = get_jwt_identity()
-    facilitator = get_facilitator(user_id)
+    user = User.query.get(user_id)
     event = Event.query.get(event_id)
-    if not facilitator or not event or event.facilitator_id != facilitator.id:
+    if not user or user.role != 'facilitator' or not event or event.user_id != user_id:
         return jsonify({'error': 'Not authorized or event not found'}), 403
     try:
         event.is_active = False

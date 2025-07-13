@@ -5,6 +5,11 @@ import { useAuth } from "@/lib/auth-store";
 import api from "@/lib/api";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { ArrowRight, Users, Calendar, CheckCircle } from "lucide-react";
 
 export default function ChooseRolePage() {
   const { user, setUser, access_token, setAccessToken } = useAuth();
@@ -57,37 +62,126 @@ export default function ChooseRolePage() {
     }
   };
 
+  const roleOptions = [
+    {
+      value: "user",
+      title: "User",
+      description: "Book sessions and events",
+      icon: Users,
+      features: [
+        "Browse available events",
+        "Book sessions with facilitators",
+        "Track your bookings",
+        "Manage your profile"
+      ],
+      color: "bg-blue-500/10 text-blue-600 border-blue-200"
+    },
+    {
+      value: "facilitator",
+      title: "Facilitator",
+      description: "Host sessions and events",
+      icon: Calendar,
+      features: [
+        "Create and manage events",
+        "Host sessions and workshops",
+        "Track bookings and revenue",
+        "Build your facilitator profile"
+      ],
+      color: "bg-green-500/10 text-green-600 border-green-200"
+    }
+  ];
+
   return (
-    <div className="max-w-md mx-auto mt-20 p-8 border rounded-lg shadow bg-background">
-      <h1 className="text-2xl font-bold mb-4">Choose Your Role</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex items-center gap-4">
-          <label className="text-sm font-medium">Role:</label>
-          <label className="flex items-center gap-1">
-            <input
-              type="radio"
-              name="role"
-              value="user"
-              checked={role === "user"}
-              onChange={() => setRole("user")}
-            />
-            User
-          </label>
-          <label className="flex items-center gap-1">
-            <input
-              type="radio"
-              name="role"
-              value="facilitator"
-              checked={role === "facilitator"}
-              onChange={() => setRole("facilitator")}
-            />
-            Facilitator
-          </label>
-        </div>
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Saving..." : "Continue"}
-        </Button>
-      </form>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
+      <div className="w-full max-w-4xl">
+        <Card className="border-0 shadow-2xl">
+          <CardHeader className="space-y-1 pb-8 text-center">
+            <div className="flex items-center justify-center mb-4">
+              <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
+                <Users className="h-6 w-6 text-primary-foreground" />
+              </div>
+            </div>
+            <CardTitle className="text-3xl font-bold">Choose Your Role</CardTitle>
+            <CardDescription className="text-lg">
+              Select how you'd like to use our platform
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-8">
+            <form onSubmit={handleSubmit}>
+              <RadioGroup value={role} onValueChange={setRole} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {roleOptions.map((option) => {
+                  const IconComponent = option.icon;
+                  return (
+                    <div key={option.value}>
+                      <RadioGroupItem value={option.value} id={option.value} className="peer sr-only" />
+                      <Label
+                        htmlFor={option.value}
+                        className={`flex flex-col h-full rounded-xl border-2 border-muted bg-popover p-6 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary cursor-pointer transition-all duration-200 hover:shadow-lg`}
+                      >
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center space-x-3">
+                            <div className={`p-2 rounded-lg ${option.color}`}>
+                              <IconComponent className="h-5 w-5" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-lg">{option.title}</h3>
+                              <p className="text-sm text-muted-foreground">{option.description}</p>
+                            </div>
+                          </div>
+                          {role === option.value && (
+                            <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground">
+                              <CheckCircle className="h-4 w-4" />
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <h4 className="font-medium text-sm">What you can do:</h4>
+                          <ul className="space-y-1">
+                            {option.features.map((feature, index) => (
+                              <li key={index} className="flex items-center space-x-2 text-sm text-muted-foreground">
+                                <div className="w-1 h-1 rounded-full bg-muted-foreground"></div>
+                                <span>{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <Badge 
+                          variant="secondary" 
+                          className="mt-4 w-fit"
+                        >
+                          {option.value === "user" ? "Most Popular" : "For Professionals"}
+                        </Badge>
+                      </Label>
+                    </div>
+                  );
+                })}
+              </RadioGroup>
+
+              <div className="mt-8 flex justify-center">
+                <Button type="submit" size="lg" disabled={loading} className="px-8">
+                  {loading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Setting up your account...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <span>Continue to Dashboard</span>
+                      <ArrowRight className="h-4 w-4" />
+                    </div>
+                  )}
+                </Button>
+              </div>
+            </form>
+
+            <div className="text-center text-sm text-muted-foreground">
+              <p>You can change your role later in your account settings</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 } 

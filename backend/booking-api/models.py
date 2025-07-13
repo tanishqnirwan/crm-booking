@@ -17,22 +17,7 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     # Relationships
     bookings = db.relationship('Booking', backref='user', lazy=True)
-    facilitator = db.relationship('Facilitator', backref='user', uselist=False)
-
-class Facilitator(db.Model):
-    __tablename__ = 'facilitators'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
-    name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    bio = db.Column(db.Text)
-    specialization = db.Column(db.String(200))
-    profile_picture = db.Column(db.String(255))
-    is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    # Relationships
-    events = db.relationship('Event', backref='facilitator', lazy=True)
+    events = db.relationship('Event', backref='user', lazy=True)
 
 class Event(db.Model):
     __tablename__ = 'events'
@@ -49,7 +34,7 @@ class Event(db.Model):
     price = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
     currency = db.Column(db.String(3), nullable=False, default='USD')
     is_active = db.Column(db.Boolean, default=True)
-    facilitator_id = db.Column(db.Integer, db.ForeignKey('facilitators.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     # Relationships

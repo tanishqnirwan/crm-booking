@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import Event, Facilitator, User
+from models import Event, User
 from extensions import db
 from datetime import datetime
 
@@ -12,7 +12,7 @@ def list_events():
     events = Event.query.filter_by(is_active=True).all()
     result = []
     for event in events:
-        facilitator = Facilitator.query.get(event.facilitator_id)
+        user = User.query.get(event.user_id)
         result.append({
             'id': event.id,
             'title': event.title,
@@ -27,10 +27,10 @@ def list_events():
             'price': float(event.price),
             'currency': event.currency,
             'facilitator': {
-                'id': facilitator.id if facilitator else None,
-                'name': facilitator.name if facilitator else None,
-                'email': facilitator.email if facilitator else None
-            } if facilitator else None
+                'id': user.id if user else None,
+                'name': user.name if user else None,
+                'email': user.email if user else None
+            } if user else None
         })
     return jsonify(result)
 
@@ -41,9 +41,6 @@ def create_event():
     user = User.query.get(user_id)
     if not user or user.role != 'facilitator':
         return jsonify({'error': 'Only facilitators can create events'}), 403
-    facilitator = Facilitator.query.filter_by(user_id=user.id).first()
-    if not facilitator:
-        return jsonify({'error': 'Facilitator profile not found'}), 404
     data = request.get_json()
     try:
         event = Event(
@@ -57,7 +54,7 @@ def create_event():
             max_participants=data.get('max_participants', 1),
             price=data.get('price', 0.0),
             currency=data.get('currency', 'USD'),
-            facilitator_id=facilitator.id
+            user_id=user.id
         )  # type: ignore
         db.session.add(event)
         db.session.commit()

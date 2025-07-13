@@ -46,7 +46,7 @@ def create_booking():
             'booking_id': booking.id,
             'user': {'id': user.id, 'email': user.email, 'name': user.name},
             'event': {'id': event.id, 'title': event.title},
-            'facilitator_id': event.facilitator_id
+            'facilitator_id': event.user_id
         }
         headers = {'Authorization': f'Bearer {CRM_BEARER_TOKEN}'}
         requests.post(CRM_URL, json=payload, headers=headers, timeout=3)
