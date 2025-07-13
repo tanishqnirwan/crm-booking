@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: booking
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  booking-api:
+    build:
+      context: ./backend/booking-api
+    command: python app.py
+    env_file:
+      - ./backend/booking-api/.env
+    ports:
+      - '5000:5000'
+    depends_on:
+      - db
+    volumes:
+      - ./backend/booking-api:/app
+volumes:
+  pgdata: 
