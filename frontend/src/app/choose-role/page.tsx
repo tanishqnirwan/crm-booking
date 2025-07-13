@@ -69,8 +69,9 @@ export default function ChooseRolePage() {
           router.replace("/user");
         }
       }, 100);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || "Failed to update profile");
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error?.response?.data?.error || "Failed to update profile");
     } finally {
       setLoading(false);
     }

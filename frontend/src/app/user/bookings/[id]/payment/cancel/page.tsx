@@ -1,6 +1,6 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter, useParams, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-store";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,13 +9,11 @@ import { XCircle, ArrowLeft, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export default function PaymentCancel() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user } = useAuth();
   const router = useRouter();
   const params = useParams();
-  const searchParams = useSearchParams();
   const bookingId = params.id as string;
-  
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Show cancellation message

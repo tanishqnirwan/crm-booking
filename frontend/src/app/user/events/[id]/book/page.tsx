@@ -56,9 +56,10 @@ export default function BookEvent() {
         headers: { Authorization: `Bearer ${localStorage.getItem("access_token")}` }
       });
       setEvent(response.data);
-    } catch (error: any) {
-      toast.error("Failed to load event details");
-      console.error("Event details error:", error);
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error?.response?.data?.error || "Failed to load event details");
+      console.error("Event details error:", err);
     } finally {
       setLoading(false);
     }
@@ -93,15 +94,15 @@ export default function BookEvent() {
           name: "Booking System",
           description: `Booking for ${event.title}`,
           order_id: payment_data.order_id,
-          handler: async function (response: any) {
+          handler: async function (response: unknown) {
             console.log("Payment successful:", response);
             setPaymentProcessing(true);
             toast.success("Payment successful! Confirming your booking...");
             try {
               // Confirm booking after successful payment
-              await confirmBooking(booking_reference, response.razorpay_payment_id);
-            } catch (error) {
-              console.error("Failed to confirm booking:", error);
+              await confirmBooking(booking_reference, (response as { razorpay_payment_id: string }).razorpay_payment_id);
+            } catch (err: unknown) {
+              console.error("Failed to confirm booking:", err);
               toast.error("Payment successful but booking confirmation failed. Please contact support.");
               setPaymentProcessing(false);
             }
@@ -186,8 +187,8 @@ export default function BookEvent() {
           const rzp = new (window as any).Razorpay(options);
           rzp.open();
         };
-        script.onerror = (error) => {
-          console.error("Failed to load Razorpay script:", error);
+        script.onerror = (err: unknown) => {
+          console.error("Failed to load Razorpay script:", err);
           toast.error("Failed to load payment gateway");
           setBookingLoading(false);
         };
@@ -197,13 +198,14 @@ export default function BookEvent() {
         toast.error("Payment gateway initialization failed. Please try again.");
         setBookingLoading(false);
       }
-    } catch (error: any) {
-      if (error.response?.data?.error) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      if (error?.response?.data?.error) {
         toast.error(error.response.data.error);
       } else {
         toast.error("Failed to initialize payment");
       }
-      console.error("Payment initialization error:", error);
+      console.error("Payment initialization error:", err);
       setBookingLoading(false);
     }
   };
@@ -232,10 +234,11 @@ export default function BookEvent() {
         router.push("/user");
       }
       
-    } catch (error: any) {
-      console.error("Booking confirmation error:", error);
+    } catch (err: unknown) {
+      console.error("Booking confirmation error:", err);
       toast.dismiss();
-      if (error.response?.data?.error) {
+      const error = err as { response?: { data?: { error?: string } } };
+      if (error?.response?.data?.error) {
         toast.error(error.response.data.error);
       } else {
         toast.error("Failed to confirm booking");

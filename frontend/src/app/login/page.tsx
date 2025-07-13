@@ -69,8 +69,9 @@ export default function LoginPage() {
           router.replace("/choose-role");
         }
       }, 100);
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || "Login failed");
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { error?: string } } };
+      toast.error(error?.response?.data?.error || "Failed to login");
     } finally {
       setLoading(false);
     }
@@ -194,10 +195,12 @@ export default function LoginPage() {
             </Button>
 
             <div className="text-center text-sm">
-              <span className="text-muted-foreground">Don't have an account? </span>
-              <Link href="/register" className="font-medium text-primary hover:underline">
-                Sign up
-              </Link>
+              <p className="text-sm text-muted-foreground">
+                Don&apos;t have an account?{" "}
+                <Link href="/register" className="text-primary hover:underline">
+                  Sign up
+                </Link>
+              </p>
             </div>
           </CardContent>
         </Card>
